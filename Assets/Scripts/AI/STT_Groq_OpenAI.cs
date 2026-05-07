@@ -68,8 +68,6 @@ public class STT_Groq_OpenAI : MonoBehaviour
 
     public void StartSpeaking()
     {
-        wavObject = new AI_WAV();               //Start with a clean stream
-
         //Setup the AudioSource for reading
         AudioSource aud = GetComponent<AudioSource>();
         if (debug) 

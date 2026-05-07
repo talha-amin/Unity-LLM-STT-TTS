@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.XR.Interaction.Toolkit;
 
 /// <summary>
@@ -116,6 +117,15 @@ public class AI_Orchestrator : MonoBehaviour
     public bool RAGConfigured()
     {
         return (ragMariaDB == null ? false : true);
+    }
+
+
+    void Update()
+    {
+        if (Keyboard.current != null && Keyboard.current.spaceKey.wasPressedThisFrame)
+            if (sttGroqOpenAI) sttGroqOpenAI.StartSpeaking();
+        if (Keyboard.current != null && Keyboard.current.spaceKey.wasReleasedThisFrame)
+            Microphone.End(null);
     }
 
 

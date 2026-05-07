@@ -57,6 +57,7 @@ public class API_Keys : MonoBehaviour
             string[] lines = textFile.text.Split('\n');
             foreach (string line in lines)
             {
+                if (string.IsNullOrWhiteSpace(line)) continue;
                 string[] parts = line.Split(':');
                 if (parts.Length == 2)
                     apiKeys[parts[0].Trim()] = parts[1].Trim();

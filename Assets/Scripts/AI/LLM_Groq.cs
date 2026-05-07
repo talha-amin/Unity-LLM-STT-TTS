@@ -164,6 +164,7 @@ public class LLM_Groq : MonoBehaviour
         request.downloadHandler = (DownloadHandler)new DownloadHandlerBuffer();
 
         //headers
+        request.SetRequestHeader("Content-Type", "application/json");
         request.SetRequestHeader("Authorization", "Bearer " + apiKey);
 
         //Wait for the result without blocking the main thread
