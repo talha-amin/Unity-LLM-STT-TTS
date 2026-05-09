@@ -6,7 +6,6 @@ using System;
 
 public class TTS_SF_Simba : MonoBehaviour
 {
-    //Variables
     private string SPEECHIFY_API_KEY;
 
     private enum SelectVoice
@@ -23,13 +22,10 @@ public class TTS_SF_Simba : MonoBehaviour
         _base, _english, _multilingual, _turbo
     }
 
-    [SerializeField]
-    private SelectVoice selectVoice;
+    [SerializeField] private SelectVoice selectVoice;
+    [SerializeField] private SelectModel selectModel;
 
-    [SerializeField]
-    private SelectModel selectModel;
-
-    const string TTS_API_URI = "https://api.sws.speechify.com/v1/audio/stream";      //POST URI, streaming API
+    const string TTS_API_URI = "https://api.sws.speechify.com/v1/audio/speech";
     private string sfVoice;
     private string sfModel;
     Animator avtAnimator;
@@ -39,26 +35,21 @@ public class TTS_SF_Simba : MonoBehaviour
     const string DEBUG_PREFIX = "TTS_SF_SIMBA: ";
 
 
-    // Start is called before the first frame update
     public void Init()
     {
-        //We first retrieve the API keys from the API Key component
         api_Keys = GetComponent<API_Keys>();
         if (!api_Keys)
-            Debug.LogError(DEBUG_PREFIX + "Cannot find the API Keys component, please check the Inspector!");
+            Debug.LogError(DEBUG_PREFIX + "Cannot find the API Keys component!");
         else SPEECHIFY_API_KEY = api_Keys.GetAPIKey("Speechify_API_Key");
 
         if (SPEECHIFY_API_KEY == null)
-            Debug.LogWarning(DEBUG_PREFIX + "Warning: TTS API key is empty, check Inspector!");
+            Debug.LogWarning(DEBUG_PREFIX + "Warning: TTS API key is empty, check API Key File!");
 
         avtAnimator = GetComponent<Animator>();
 
-        sfVoice = selectVoice.ToString().Substring(3).ToLower();                    //20250403 - fix as API is now case-sensitive!
-        sfModel = "simba-"+selectModel.ToString().Substring(1);
-        Debug.Log("You have selected voice " + sfVoice + " and model "+sfModel);
-
-        //DEBUG
-        //Say("Hallo ik ben de groenteboer");
+        sfVoice = selectVoice.ToString().Substring(3).ToLower();
+        sfModel = "simba-" + selectModel.ToString().Substring(1);
+        Debug.Log("You have selected voice " + sfVoice + " and model " + sfModel);
     }
 
 
@@ -70,96 +61,105 @@ public class TTS_SF_Simba : MonoBehaviour
 
     IEnumerator PlayTTS(string mesg)
     {
-        //JSON
-        TextToSpeechData ttsData = new TextToSpeechData();
-        ttsData.input = SimpleCleanText(mesg);
-        ttsData.voice_id = sfVoice;
-        ttsData.model = sfModel;
-        string jsonPrompt = JsonUtility.ToJson(ttsData);
+        TextToSpeechRequest ttsData = new TextToSpeechRequest
+        {
+            input = SimpleCleanText(mesg),
+            voice_id = sfVoice,
+            model = sfModel,
+            audio_format = "mp3"
+        };
+        string jsonBody = JsonUtility.ToJson(ttsData);
 
-        //WebRequest
+        if (debug) Debug.Log(DEBUG_PREFIX + "Request: " + jsonBody);
+
         UnityWebRequest request = new UnityWebRequest(TTS_API_URI, "POST");
-        request.uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(jsonPrompt));
-        request.downloadHandler = new DownloadHandlerAudioClip(TTS_API_URI, AudioType.MPEG);
-
-        //Headers
+        request.uploadHandler = new UploadHandlerRaw(System.Text.Encoding.UTF8.GetBytes(jsonBody));
+        request.downloadHandler = new DownloadHandlerBuffer();
         request.SetRequestHeader("content-type", "application/json");
-        request.SetRequestHeader("accept", "audio/mpeg");
-        request.SetRequestHeader("Authorization", SPEECHIFY_API_KEY);
+        request.SetRequestHeader("Authorization", "Bearer " + SPEECHIFY_API_KEY);
 
         yield return request.SendWebRequest();
-        if (request.result == UnityWebRequest.Result.Success)
+
+        if (request.result != UnityWebRequest.Result.Success)
         {
-            avtAnimator.SetBool("isTalking", true);
-            AudioClip clip = DownloadHandlerAudioClip.GetContent(request);
+            Debug.LogError(DEBUG_PREFIX + "TTS failed: " + request.error + " | " + request.downloadHandler.text);
+            yield break;
+        }
+
+        // Response is JSON with base64-encoded audio_data
+        SpeechifyResponse resp = JsonUtility.FromJson<SpeechifyResponse>(request.downloadHandler.text);
+        if (resp == null || string.IsNullOrEmpty(resp.audio_data))
+        {
+            Debug.LogError(DEBUG_PREFIX + "Empty audio_data in response: " + request.downloadHandler.text);
+            yield break;
+        }
+
+        // Write mp3 to temp file then load as AudioClip
+        byte[] mp3Bytes = Convert.FromBase64String(resp.audio_data);
+        string tmpPath = System.IO.Path.Combine(Application.temporaryCachePath, "tts_out.mp3");
+        System.IO.File.WriteAllBytes(tmpPath, mp3Bytes);
+
+        UnityWebRequest audioReq = UnityWebRequestMultimedia.GetAudioClip("file://" + tmpPath, AudioType.MPEG);
+        yield return audioReq.SendWebRequest();
+
+        if (audioReq.result == UnityWebRequest.Result.Success)
+        {
+            if (avtAnimator) avtAnimator.SetBool("isTalking", true);
+            AudioClip clip = DownloadHandlerAudioClip.GetContent(audioReq);
             GetComponent<AudioSource>().PlayOneShot(clip);
             StartCoroutine(WaitForTalkingFinished());
         }
-        else Debug.Log("TTS API Request failed: " + request.error);
+        else Debug.LogError(DEBUG_PREFIX + "Audio load failed: " + audioReq.error);
     }
 
 
     IEnumerator WaitForTalkingFinished()
     {
         while (GetComponent<AudioSource>().isPlaying)
-        {
             yield return null;
-        }
-        avtAnimator.SetBool("isTalking", false);
-        //Add any code here that has to be sure the speech is completed, eg. animations
+        if (avtAnimator) avtAnimator.SetBool("isTalking", false);
     }
 
 
-    //JSON Support Classes
     [Serializable]
-    public class TextToSpeechData
+    public class TextToSpeechRequest
     {
         public string input;
         public string voice_id;
         public string model;
+        public string audio_format;
+    }
+
+    [Serializable]
+    public class SpeechifyResponse
+    {
+        public string audio_data;   // base64-encoded mp3
     }
 
 
-    string SimpleCleanText(string msg)     //just a barebone filter 
+    string SimpleCleanText(string msg)
     {
         string result = "";
-
         for (int i = 0; i < msg.Length; i++)
         {
             switch (msg[i])
             {
-                case '+':
-                    result += " plus ";
-                    break;
-                case ':':
-                    result += ", ";
-                    break;
-                case '*':
-                    result += ", ";
-                    break;
-                case '=':
-                    result += " equals ";
-                    break;
-                case '-':
-                    result += " ";
-                    break;
-                case '#':
-                    result += " hash ";
-                    break;
-                case '&':
-                    result += " and ";
-                    break;
+                case '+': result += " plus ";    break;
+                case ':': result += ", ";        break;
+                case '*': result += ", ";        break;
+                case '=': result += " equals ";  break;
+                case '-': result += " ";         break;
+                case '#': result += " hash ";    break;
+                case '&': result += " and ";     break;
                 case 'I':
-                    if ((i < msg.Length + 2) && (msg[i + 1] == '\'') && msg[i + 2] == 'm')
+                    if (i + 2 < msg.Length && msg[i + 1] == '\'' && msg[i + 2] == 'm')
                     {
                         result += "I am";
                         i += 2;
                     }
                     else result += 'I';
                     break;
-                default:
-                    result += msg[i];       //simply pass on everything else
-                    break;
+                default:  result += msg[i];      break;
             }
         }
         return result;

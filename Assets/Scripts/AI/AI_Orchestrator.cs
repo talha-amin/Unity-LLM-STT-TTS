@@ -28,13 +28,6 @@ public class AI_Orchestrator : MonoBehaviour
     [SerializeField] public TTS_SF_Simba ttsSFSimba;
     [SerializeField] public TTS_11_Labs tts11Labs;
 
-    [Header("Text to Image")]
-    [SerializeField] public TTI_HF_SDXLB ttiHFSDXLB;
-
-    //[Header("Text to Mesh")]
-    //[SerializeField] public TTM_Sloyd_API ttmSloyd;       //Deprecated 
-
-
     //This initializes all AI components AFTER the API keys were read from the APIKeys file
     public void Init()
     {
@@ -47,10 +40,6 @@ public class AI_Orchestrator : MonoBehaviour
         if (sttGroqOpenAI) sttGroqOpenAI.Init();
         if (sttHFOpenAI) sttHFOpenAI.Init();
         if (stt11Labs) stt11Labs.Init();
-
-        if (ttiHFSDXLB) ttiHFSDXLB.Init();
-
-        //if (ttmSloyd) ttmSloyd.Init();    Deprecated
 
         if (tts11Labs) tts11Labs.Init();
         if (ttsRAOpenAI) ttsRAOpenAI.Init();
@@ -77,29 +66,6 @@ public class AI_Orchestrator : MonoBehaviour
         if (llmOllama)      llmOllama.TextToLLM(input, context);
     }
 
-
-    //Generalized TextToImage command - Expand here for new services!
-    public void TextToImage(string input)
-    {
-        if (ttiHFSDXLB)     ttiHFSDXLB.GetImage(input);
-    }
-
-
-    //Generalized TextToMesh commands - Expand here for new services!
-    public void TTMCreate(string input)
-    {
-        //if (ttmSloyd)       ttmSloyd.Create(input);   //deprecated
-    }
-
-    public void TTMEdit(string input)
-    {
-        //if (ttmSloyd)       ttmSloyd.Edit(input);     //deprecated
-    }
-
-    public void TTMDelete()
-    {
-        //if (ttmSloyd)       ttmSloyd.Delete();        //deprecated
-    }
 
     //Non-async call ro retrieve Context from a RAG database
     // - all RAG systems must implement a .GetContext method
