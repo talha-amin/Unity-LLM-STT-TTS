@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Vapi Unity Bridge</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@vapi-ai/web/dist/vapi.js"></script>
+</head>
+
+<body>
+
+<script>
+
+const vapi = new Vapi("ea194d3c-6deb-41c1-9980-f5bdc9b88fec");
+
+let isStarted = false;
+
+// START CALL
+async function startVapi() {
+
+    if (isStarted) return;
+
+    isStarted = true;
+
+    await vapi.start("c95d9b1b-b5e0-480f-8efc-520bd22d1fa9");
+
+    console.log("Vapi started");
+}
+
+// STOP CALL
+function stopVapi() {
+
+    vapi.stop();
+
+    isStarted = false;
+}
+
+// RECEIVE TRANSCRIPTS
+vapi.on("message", (message) => {
+
+    console.log("MESSAGE:", message);
+
+    // USER SPEECH
+    if (message.type === "transcript" &&
+        message.role === "user") {
+
+        sendToUnity("USER:" + message.transcript);
+    }
+
+    // AI SPEECH
+    if (message.type === "transcript" &&
+        message.role === "assistant") {
+
+        sendToUnity("BOT:" + message.transcript);
+    }
+});
+
+// SEND MESSAGE TO UNITY
+function sendToUnity(text) {
+
+    console.log("Sending to Unity:", text);
+
+    // Unity bridge
+    if (window.vuplex) {
+        window.vuplex.postMessage(text);
+    }
+}
+
+</script>
+
+</body>
+</html>

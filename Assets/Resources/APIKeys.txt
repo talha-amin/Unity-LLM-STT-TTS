@@ -1,0 +1,3 @@
+Groq_API_Key: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
+Speechify_API_Key:lqWz8UbS8VVm88CbhXntkkCADkIdnau1R-6joXYP4Pg=
+
