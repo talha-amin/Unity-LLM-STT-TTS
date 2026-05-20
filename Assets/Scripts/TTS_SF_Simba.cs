@@ -28,7 +28,7 @@ public class TTS_SF_Simba : MonoBehaviour
     const string TTS_API_URI = "https://api.sws.speechify.com/v1/audio/speech";
     private string sfVoice;
     private string sfModel;
-    Animator avtAnimator;
+    [SerializeField] private Animator avtAnimator;
     API_Keys api_Keys;
 
     [SerializeField] private bool debug;
@@ -45,7 +45,6 @@ public class TTS_SF_Simba : MonoBehaviour
         if (SPEECHIFY_API_KEY == null)
             Debug.LogWarning(DEBUG_PREFIX + "Warning: TTS API key is empty, check API Key File!");
 
-        avtAnimator = GetComponent<Animator>();
 
         sfVoice = selectVoice.ToString().Substring(3).ToLower();
         sfModel = "simba-" + selectModel.ToString().Substring(1);
@@ -106,7 +105,9 @@ public class TTS_SF_Simba : MonoBehaviour
         {
             if (avtAnimator) avtAnimator.SetBool("isTalking", true);
             AudioClip clip = DownloadHandlerAudioClip.GetContent(audioReq);
-            GetComponent<AudioSource>().PlayOneShot(clip);
+            AudioSource audioSource = GetComponent<AudioSource>();
+            audioSource.clip = clip;
+            audioSource.Play();
             StartCoroutine(WaitForTalkingFinished());
         }
         else Debug.LogError(DEBUG_PREFIX + "Audio load failed: " + audioReq.error);
