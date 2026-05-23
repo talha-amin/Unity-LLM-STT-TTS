@@ -1,0 +1,40 @@
+{
+  "patients": [
+    {
+      "id": "P001",
+      "name": "James Hartley",
+      "dob": "14/03/1958",
+      "mrn": "MRN00101",
+      "ward": "Cardiac Ward, Bed 3",
+      "consultant": "Dr. Patel",
+      "situation": "68-year-old male admitted 2 days ago with acute chest pain radiating to the left arm. Pain is currently 3 out of 10, improved since admission. Patient is awaiting a cardiology review.",
+      "background": "Medical history includes hypertension, hypercholesterolaemia, and a previous MI in 2019. Current medications: Aspirin 75mg OD, Atorvastatin 40mg ON, Ramipril 5mg OD, Bisoprolol 2.5mg OD. Allergies: Penicillin (causes rash). Non-smoker. Retired teacher.",
+      "assessment": "BP 146/88 mmHg, HR 78 bpm regular, RR 16 breaths/min, SpO2 97% on room air, Temp 36.6C. ECG shows sinus rhythm with minor lateral ST changes. Serial troponins: T0 = 52 ng/L, T3 = 61 ng/L (mildly rising). Chest X-ray shows mild cardiomegaly, no pulmonary oedema.",
+      "recommendation": "Cardiology review booked for this afternoon. Continue dual antiplatelet therapy. Repeat ECG and troponin at 6 hours. Patient to remain on telemetry. Fluid balance monitoring ongoing. Keep NBM pending cardiology advice."
+    },
+    {
+      "id": "P002",
+      "name": "Margaret Collins",
+      "dob": "29/09/1971",
+      "mrn": "MRN00202",
+      "ward": "Respiratory Ward, Bed 11",
+      "consultant": "Dr. Ahmed",
+      "situation": "54-year-old female admitted yesterday via ED with acute exacerbation of COPD. Presenting with increased shortness of breath, productive cough with green sputum, and reduced exercise tolerance for 3 days prior to admission.",
+      "background": "Known COPD (GOLD Stage 3), ex-smoker (40 pack-year history, quit 2018). Also has Type 2 Diabetes managed with diet alone. Current medications: Salbutamol inhaler PRN, Tiotropium 18mcg OD, Prednisolone 30mg OD (started on admission), Co-amoxiclav 625mg TDS (Day 1). Allergies: None known.",
+      "assessment": "BP 132/76 mmHg, HR 94 bpm, RR 24 breaths/min, SpO2 89% on 2L O2 via nasal cannula (target 88-92%), Temp 37.9C. Chest auscultation: bilateral wheeze with reduced air entry at bases. ABG on 2L O2: pH 7.36, PaO2 8.1 kPa, PaCO2 6.2 kPa. CXR: hyperinflation, no consolidation. CRP 78, WBC 13.2.",
+      "recommendation": "Continue controlled oxygen therapy targeting SpO2 88-92%. Physiotherapy input requested for airway clearance. Nebulised salbutamol and ipratropium QDS. If no improvement in 12 hours, consider NIV. Monitor blood glucose given steroid use. Chest physiotherapy twice daily."
+    },
+    {
+      "id": "P003",
+      "name": "Daniel Osei",
+      "dob": "07/11/1995",
+      "mrn": "MRN00303",
+      "ward": "Surgical Ward, Bed 7",
+      "consultant": "Mr. Thompson",
+      "situation": "30-year-old male, day 1 post-operative following emergency laparoscopic appendectomy performed last night for perforated appendicitis. Recovering well. Reporting pain of 5 out of 10 at the wound site, manageable with analgesia.",
+      "background": "No significant past medical history. No regular medications pre-admission. Allergies: Codeine (causes nausea and vomiting). Next of kin informed and present at bedside. Works as a software engineer, normally fit and active.",
+      "assessment": "BP 118/72 mmHg, HR 88 bpm, RR 14 breaths/min, SpO2 99% on room air, Temp 37.4C. Abdomen: soft, mild tenderness at port sites, no peritonism. Bowel sounds present. Wound sites clean and dry. Urine output adequate at 55 ml/hr. WBC pre-op 18.4, post-op result pending. Tolerating sips of water.",
+      "recommendation": "Regular paracetamol and ibuprofen for analgesia, avoid codeine. Encourage early mobilisation with physiotherapy support. Advance diet as tolerated. IV antibiotics (Metronidazole and Co-amoxiclav) to continue for 48 hours given perforation. DVT prophylaxis: Enoxaparin 40mg SC OD and TED stockings. Surgical review on ward round tomorrow morning."
+    }
+  ]
+}

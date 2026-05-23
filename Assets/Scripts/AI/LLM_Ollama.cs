@@ -27,6 +27,18 @@ public class LLM_Ollama : MonoBehaviour
     List<Message> messageHistory;
 
 
+    /// <summary>
+    /// Appends extra text to the static context before Init() is called.
+    /// Used by AI_Orchestrator to inject patient data into the system prompt.
+    /// Must be called BEFORE Init().
+    /// </summary>
+    public void AppendToContext(string extra)
+    {
+        if (string.IsNullOrEmpty(extra)) return;
+        context = string.IsNullOrEmpty(context) ? extra : context + "\n\n" + extra;
+    }
+
+
     // Start is called before the first frame update
     public void Init()
     {

@@ -18,6 +18,9 @@ public class AI_Orchestrator : MonoBehaviour
     [SerializeField] public LLM_Google llmGoogle;
     [SerializeField] public LLM_Ollama llmOllama;
 
+    [Header("Patient Data")]
+    [SerializeField] public PatientData_Loader patientDataLoader;
+
     [Header("RAG")]
     [SerializeField] public RAG_MariaDB ragMariaDB;       //Future
     [SerializeField] public int maxResults;
@@ -31,6 +34,15 @@ public class AI_Orchestrator : MonoBehaviour
     //This initializes all AI components AFTER the API keys were read from the APIKeys file
     public void Init()
     {
+        // Load patient data and inject into LLM context BEFORE LLM Init() calls
+        if (patientDataLoader != null && patientDataLoader.Load())
+        {
+            string patientContext = patientDataLoader.GetFormattedContext();
+            if (llmGroq)   llmGroq.AppendToContext(patientContext);
+            if (llmGoogle) llmGoogle.AppendToContext(patientContext);
+            if (llmOllama) llmOllama.AppendToContext(patientContext);
+        }
+
         if (llmGoogle) llmGoogle.Init();
         if (llmGroq) llmGroq.Init();
         if (llmOllama) llmOllama.Init();

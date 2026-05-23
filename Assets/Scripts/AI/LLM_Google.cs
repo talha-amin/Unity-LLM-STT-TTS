@@ -42,6 +42,18 @@ public class LLM_Google : MonoBehaviour
     Content systemInstruction = new Content();              //Google does not have a system message but rather uses a system_instruction preceeding the regular contents array        
 
 
+    /// <summary>
+    /// Appends extra text to the static context before Init() is called.
+    /// Used by AI_Orchestrator to inject patient data into the system prompt.
+    /// Must be called BEFORE Init().
+    /// </summary>
+    public void AppendToContext(string extra)
+    {
+        if (string.IsNullOrEmpty(extra)) return;
+        context = string.IsNullOrEmpty(context) ? extra : context + "\n\n" + extra;
+    }
+
+
     public void Init()
     {
         string prompt;
