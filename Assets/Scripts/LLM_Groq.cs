@@ -177,8 +177,8 @@ public class LLM_Groq : MonoBehaviour
     Debug.Log(LLMresult);
 
     // Show bot message in chat UI
-    ChatUI chatUI = FindObjectOfType<ChatUI>();
-    if (chatUI) chatUI.AddBotMessage(LLMresult);
+    // ChatUI chatUI = FindObjectOfType<ChatUI>();
+    // if (chatUI) chatUI.AddBotMessage(LLMresult);
 
     //now lets call TTS via the AI Orchestrator!
     aiO.Say(LLMresult);

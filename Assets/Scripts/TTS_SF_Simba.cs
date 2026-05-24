@@ -31,6 +31,12 @@ public class TTS_SF_Simba : MonoBehaviour
     [SerializeField] private Animator avtAnimator;
     API_Keys api_Keys;
 
+    // Speech bubble reference
+    BotSpeechBubble speechBubble;
+
+    // Store current message for bubble display
+    string currentMessage = "";
+
     [SerializeField] private bool debug;
     const string DEBUG_PREFIX = "TTS_SF_SIMBA: ";
 
@@ -45,15 +51,18 @@ public class TTS_SF_Simba : MonoBehaviour
         if (SPEECHIFY_API_KEY == null)
             Debug.LogWarning(DEBUG_PREFIX + "Warning: TTS API key is empty, check API Key File!");
 
-
         sfVoice = selectVoice.ToString().Substring(3).ToLower();
         sfModel = "simba-" + selectModel.ToString().Substring(1);
         Debug.Log("You have selected voice " + sfVoice + " and model " + sfModel);
+
+        // Find speech bubble on the bot
+        speechBubble = FindObjectOfType<BotSpeechBubble>();
     }
 
 
     public void Say(string textInput)
     {
+        currentMessage = textInput;
         StartCoroutine(PlayTTS(textInput));
     }
 
@@ -85,7 +94,6 @@ public class TTS_SF_Simba : MonoBehaviour
             yield break;
         }
 
-        // Response is JSON with base64-encoded audio_data
         SpeechifyResponse resp = JsonUtility.FromJson<SpeechifyResponse>(request.downloadHandler.text);
         if (resp == null || string.IsNullOrEmpty(resp.audio_data))
         {
@@ -93,7 +101,6 @@ public class TTS_SF_Simba : MonoBehaviour
             yield break;
         }
 
-        // Write mp3 to temp file then load as AudioClip
         byte[] mp3Bytes = Convert.FromBase64String(resp.audio_data);
         string tmpPath = System.IO.Path.Combine(Application.temporaryCachePath, "tts_out.mp3");
         System.IO.File.WriteAllBytes(tmpPath, mp3Bytes);
@@ -104,6 +111,10 @@ public class TTS_SF_Simba : MonoBehaviour
         if (audioReq.result == UnityWebRequest.Result.Success)
         {
             if (avtAnimator) avtAnimator.SetBool("isTalking", true);
+
+            // Show speech bubble when audio starts playing
+            if (speechBubble) speechBubble.ShowMessage(currentMessage);
+
             AudioClip clip = DownloadHandlerAudioClip.GetContent(audioReq);
             AudioSource audioSource = GetComponent<AudioSource>();
             audioSource.clip = clip;
@@ -118,7 +129,11 @@ public class TTS_SF_Simba : MonoBehaviour
     {
         while (GetComponent<AudioSource>().isPlaying)
             yield return null;
+
         if (avtAnimator) avtAnimator.SetBool("isTalking", false);
+
+        // Hide speech bubble when audio finishes
+        if (speechBubble) speechBubble.HideMessage();
     }
 
 
@@ -134,7 +149,7 @@ public class TTS_SF_Simba : MonoBehaviour
     [Serializable]
     public class SpeechifyResponse
     {
-        public string audio_data;   // base64-encoded mp3
+        public string audio_data;
     }
 
 
